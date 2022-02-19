@@ -49,7 +49,7 @@ namespace First_App
         public Form1()
         {
             InitializeComponent();
-            this.Text = "TSAnnounce";
+            this.Text = "TSAnnounce v0.01a";
             t = new Thread(ExtractDataThread);
             t.Start();
             waitHandle.Reset();
