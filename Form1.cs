@@ -11,6 +11,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace First_App
 {
@@ -19,10 +21,10 @@ namespace First_App
 
     public partial class Form1 : Form
     {
+
         private static bool tracking;
 
         private string[] acceptableInterlockIDs = { "DoorsInterlock", "DOO_Interlock" };
-
 
 
         private bool filesChecked = false;
@@ -37,6 +39,7 @@ namespace First_App
         private int[] doorIDs;
         private bool[] doorClosed = new bool[0];
 
+
         bool doorStatus = true;
 
         private WMPLib.WindowsMediaPlayer wplayer = new WMPLib.WindowsMediaPlayer();
@@ -45,6 +48,8 @@ namespace First_App
         private static EventWaitHandle waitHandle = new ManualResetEvent(initialState: true);
         private Dictionary<string, dynamic> annData = new Dictionary<string, dynamic>() { };
         private Dictionary<string, dynamic> configData = new Dictionary<string, dynamic>() { };
+
+        private Dictionary<string, dynamic> appSettings = new Dictionary<string, dynamic>() {};
 
         public Form1()
         {
@@ -55,6 +60,31 @@ namespace First_App
             waitHandle.Reset();
             t.IsBackground = true;
             wplayer.settings.volume = (int)(100 * (float)100 / 150);
+
+            appSettings.Add("dllPath", "");
+            appSettings.Add("volume", "");
+
+            if (File.Exists("TSAnnounceSettings.json"))
+            {
+                string settingsjson = System.IO.File.ReadAllText("TSAnnounceSettings.json");
+                Dictionary<string,dynamic> deserialised = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(settingsjson);
+                Console.WriteLine("Checking JSON");
+                foreach (KeyValuePair<string, dynamic> i in deserialised)
+                {
+                    if (i.Key == "dllPath")
+                    {
+                        appSettings["dllPath"] = i.Value;
+                        dllLoc = i.Value;
+
+                        rd64Loc.Text = i.Value + "\\RailDriver64.dll";
+                    }
+                    if (i.Key == "volume")
+                    {
+                        appSettings["volume"] = i.Value;
+                        volSlider.Value = (int)i.Value;
+                    }
+                }
+            }
         }
 
         private void setDllPath()
@@ -276,6 +306,16 @@ namespace First_App
 
         }
 
+        private void saveSettings()
+        {
+            appSettings["dllPath"] = dllLoc;
+            appSettings["volume"] = volSlider.Value;
+
+            string convertedToJson = JsonConvert.SerializeObject(appSettings, Newtonsoft.Json.Formatting.Indented);
+            string[] toSave = { convertedToJson };
+            File.WriteAllLines("TSAnnounceSettings.json", toSave);
+        }
+
         private void readButton_Click(object sender, EventArgs e)
         {
             // Check RailDriver64.dll Location
@@ -294,6 +334,7 @@ namespace First_App
                     dllLoc = System.IO.Directory.GetParent(rdBoxText).FullName;
                     Console.WriteLine(dllLoc);
                     rd64Loc.ForeColor = Color.Green;
+                    saveSettings();
                 }
                 else
                 {
@@ -398,22 +439,13 @@ namespace First_App
                     setDllPath();
 
                     [DllImport("RailDriver64.dll")]
-                    //static extern IntPtr GetLocoName(); // Get LocoName
-                    static extern Single GetRailSimValue();
-
-                    Console.WriteLine("Experimental Data:");
-                    Console.WriteLine(GetRailSimValue());
-                    //Console.WriteLine(System.Runtime.InteropServices.Marshal.PtrToStringAnsi(GetRailSimValue()));
-
-
-
-                    //static extern IntPtr GetLocoName();
-                    //string currentLoco = System.Runtime.InteropServices.Marshal.PtrToStringAnsi(GetLocoName());
-                    //string[] splitter = currentLoco.Split(new string[] { ".:." }, StringSplitOptions.RemoveEmptyEntries);
-                    //if (splitter.Length > 0)
-                    //{
-                       // trainName.Text = splitter?[2];
-                    //}
+                    static extern IntPtr GetLocoName();
+                    string currentLoco = System.Runtime.InteropServices.Marshal.PtrToStringAnsi(GetLocoName());
+                    string[] splitter = currentLoco.Split(new string[] { ".:." }, StringSplitOptions.RemoveEmptyEntries);
+                    if (splitter.Length > 0)
+                    {
+                        trainName.Text = splitter?[2];
+                    }
                     
 
                     [DllImport("RailDriver64.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -509,6 +541,7 @@ namespace First_App
             Console.WriteLine((float)configData["volumeModifier"] / 100);
             float volLevel = inputVal * (float)realMax / sliderMax;
             wplayer.settings.volume = (int)volLevel;
+            saveSettings();
         }
 
         private void previousPos_Click(object sender, EventArgs e)
