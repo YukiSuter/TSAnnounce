@@ -592,21 +592,9 @@ namespace First_App
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            string url = "";
+            string url = "https://www.paypal.com/donate/?hosted_button_id=6JE9UWGP5MVM4";
 
-            string business = "yukisuter@ycsuter.dev";  // your paypal email
-            string description = "Donation";            // '%20' represents a space. remember HTML!
-            string country = "GB";                  // AU, US, etc.
-            string currency = "GBP";                 // AUD, USD, etc.
-
-            url += "https://www.paypal.com/cgi-bin/webscr" +
-                "?cmd=" + "_donations" +
-                "&business=" + business +
-                "&lc=" + country +
-                "&item_name=" + description +
-                "&currency_code=" + currency +
-                "&bn=" + "PP%2dDonationsBF";
-
+            
             System.Diagnostics.Process.Start(url);
         }
 
