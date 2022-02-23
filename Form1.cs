@@ -25,6 +25,7 @@ namespace First_App
         private static bool tracking;
 
         private string[] acceptableInterlockIDs = { "DoorsInterlock", "DOO_Interlock" };
+        private string[] acceptableInverseInterlockIDs = { "DoorsState" };
 
 
         private bool filesChecked = false;
@@ -37,7 +38,9 @@ namespace First_App
         private float currentLAT;
         private float currentLON;
         private int[] doorIDs;
+        private int[] doorInverseIDs;
         private bool[] doorClosed = new bool[0];
+        private bool[] doorInverseClosed = new bool[0];
 
 
         bool doorStatus = true;
@@ -55,10 +58,7 @@ namespace First_App
         {
             InitializeComponent();
             this.Text = "TSAnnounce v0.01a";
-            t = new Thread(ExtractDataThread);
-            t.Start();
             waitHandle.Reset();
-            t.IsBackground = true;
             wplayer.settings.volume = (int)(100 * (float)100 / 150);
 
             appSettings.Add("dllPath", "");
@@ -69,6 +69,8 @@ namespace First_App
                 string settingsjson = System.IO.File.ReadAllText("TSAnnounceSettings.json");
                 Dictionary<string,dynamic> deserialised = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(settingsjson);
                 Console.WriteLine("Checking JSON");
+                int newvol = 100;
+
                 foreach (KeyValuePair<string, dynamic> i in deserialised)
                 {
                     if (i.Key == "dllPath")
@@ -81,10 +83,15 @@ namespace First_App
                     if (i.Key == "volume")
                     {
                         appSettings["volume"] = i.Value;
-                        volSlider.Value = (int)i.Value;
+                        newvol = (int)i.Value;
                     }
                 }
+                Console.WriteLine("Setting Slider Value");
+                volSlider.Value = newvol;
             }
+            t = new Thread(ExtractDataThread);
+            t.Start();
+            t.IsBackground = true;
         }
 
         private void setDllPath()
@@ -145,11 +152,20 @@ namespace First_App
                 Console.WriteLine(doorIDs.Length);
                 Console.WriteLine(doorIDs);
                 doorClosed = new bool[1];
+                doorClosed[0] = true;
                 for (int i = 0; i < doorIDs.Length; i += 1)
                 {
                     Array.Resize(ref doorClosed, doorClosed.Length + 1);
                     doorClosed[i] = Convert.ToBoolean(GetCurrentControllerValue(doorIDs[i]));
-                    
+
+                }
+                doorInverseClosed = new bool[1];
+                doorInverseClosed[0] = true;
+                for (int i = 0; i < doorInverseIDs.Length; i += 1)
+                {
+                    Array.Resize(ref doorInverseClosed, doorInverseClosed.Length + 1);
+                    doorInverseClosed[i] = Convert.ToBoolean(GetCurrentControllerValue(doorInverseIDs[i]));
+
                 }
                 Console.WriteLine("Set door info");
                 
@@ -196,9 +212,10 @@ namespace First_App
                     if (wplayer.playState != WMPLib.WMPPlayState.wmppsPlaying)
                     {
                         string audio2Play = configPath + "/audio/" + annData[annPos.ToString()]["file"];
+                        Action action2 = () => playAudio(audio2Play);
+                        Invoke(action2);
                         Action action = () => advancePos();
                         Invoke(action);
-                        playAudio(audio2Play);
                     }
                 }
                 if (doorStatus)
@@ -207,9 +224,10 @@ namespace First_App
                     if (wplayer.playState != WMPLib.WMPPlayState.wmppsPlaying)
                     {
                         string audio2Play = configPath + "/audio/" + annData[annPos.ToString()]["file"];
+                        Action action2 = () => playAudio(audio2Play);
+                        Invoke(action2);
                         Action action = () => advancePos();
                         Invoke(action);
-                        playAudio(audio2Play);
                     }
                 }
                 
@@ -226,6 +244,15 @@ namespace First_App
                 if (doorClosed[i] == true)
                 {
                     doorStatus = false;
+                }
+            }
+
+            for (int i = 0; i < doorInverseClosed.Length; i += 1)
+            {
+                Console.WriteLine("Door status: " + doorInverseClosed[i]);
+                if (doorInverseClosed[i] == true)
+                {
+                    doorStatus = true;
                 }
             }
 
@@ -454,7 +481,9 @@ namespace First_App
                     String[] ControllerList = tmp.Split(new string[] { "::" }, StringSplitOptions.RemoveEmptyEntries);
 
                     int k;
+                    Console.WriteLine("Check Door IDs");
                     doorIDs = new int[0];
+                    doorInverseIDs = new int[0];
                     for (k = 0; k < ControllerList.Length; k++)
                     { 
                         Console.WriteLine(k+ ": "+ControllerList[k]);
@@ -465,11 +494,23 @@ namespace First_App
                             {
                                 Console.WriteLine("Found acceptable interlock ID!");
                                 Array.Resize(ref doorIDs, doorIDs.Length + 1);
-                                
+
                                 doorIDs[doorIDs.Length - 1] = k;
                             }
                         }
-                        
+                        for (int j = 0; j < acceptableInverseInterlockIDs.Length; j++)
+                        {
+                            //Console.WriteLine("Checking: " + ControllerList[k] + " |against| " + acceptableInterlockIDs[j]);
+                            
+                            Console.WriteLine("Check Inverse Door IDs");
+                            if (ControllerList[k] == acceptableInverseInterlockIDs[j])
+                            {
+                                Array.Resize(ref doorInverseIDs, doorInverseIDs.Length + 1);
+                                Console.WriteLine("Found acceptable inverse interlock ID!");
+                                doorInverseIDs[doorInverseIDs.Length - 1] = k;
+                            }
+                        }
+
                     }
 
                     tracking = true;
@@ -547,6 +588,31 @@ namespace First_App
         private void previousPos_Click(object sender, EventArgs e)
         {
             previousPos();
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            string url = "";
+
+            string business = "yukisuter@ycsuter.dev";  // your paypal email
+            string description = "Donation";            // '%20' represents a space. remember HTML!
+            string country = "GB";                  // AU, US, etc.
+            string currency = "GBP";                 // AUD, USD, etc.
+
+            url += "https://www.paypal.com/cgi-bin/webscr" +
+                "?cmd=" + "_donations" +
+                "&business=" + business +
+                "&lc=" + country +
+                "&item_name=" + description +
+                "&currency_code=" + currency +
+                "&bn=" + "PP%2dDonationsBF";
+
+            System.Diagnostics.Process.Start(url);
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/YukiSuter/TSAnnounce");
         }
     }
     public class annConfig
