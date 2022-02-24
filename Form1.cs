@@ -149,23 +149,17 @@ namespace First_App
                 // get values
                 [DllImport("RailDriver64.dll")]
                 static extern Single GetCurrentControllerValue(int Control);
-                Console.WriteLine(doorIDs.Length);
-                Console.WriteLine(doorIDs);
-                doorClosed = new bool[1];
-                doorClosed[0] = true;
+                doorClosed = new bool[0];
                 for (int i = 0; i < doorIDs.Length; i += 1)
                 {
                     Array.Resize(ref doorClosed, doorClosed.Length + 1);
                     doorClosed[i] = Convert.ToBoolean(GetCurrentControllerValue(doorIDs[i]));
-
                 }
-                doorInverseClosed = new bool[1];
-                doorInverseClosed[0] = true;
+                doorInverseClosed = new bool[0];
                 for (int i = 0; i < doorInverseIDs.Length; i += 1)
                 {
                     Array.Resize(ref doorInverseClosed, doorInverseClosed.Length + 1);
                     doorInverseClosed[i] = Convert.ToBoolean(GetCurrentControllerValue(doorInverseIDs[i]));
-
                 }
                 Console.WriteLine("Set door info");
                 
@@ -247,13 +241,25 @@ namespace First_App
                 }
             }
 
+            if (doorStatus == false)
+            {
+
+                Console.WriteLine("Non inverse doors closed");
+            }
+
             for (int i = 0; i < doorInverseClosed.Length; i += 1)
             {
+                Console.WriteLine(doorInverseClosed[i]);
                 Console.WriteLine("Door status: " + doorInverseClosed[i]);
-                if (doorInverseClosed[i] == true)
+                if (doorInverseClosed[i] == false)
                 {
-                    doorStatus = true;
+                    doorStatus = false;
                 }
+            }
+            if (doorStatus == false)
+            {
+
+                Console.WriteLine("Non inverse doors closed");
             }
 
             if (doorStatus)
@@ -510,6 +516,7 @@ namespace First_App
                                 doorInverseIDs[doorInverseIDs.Length - 1] = k;
                             }
                         }
+                        Console.WriteLine(doorInverseIDs.Length);
 
                     }
 
