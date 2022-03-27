@@ -29,8 +29,8 @@ namespace First_App
         public static float currentLAT;
         public static float currentLON;
 
-        private string[] acceptableInterlockIDs = { "DoorsInterlock", "DOO_Interlock", "DoorInterlock" };
-        private string[] acceptableInverseInterlockIDs = { "DoorsState" };
+        private string[] acceptableInterlockIDs = { "DoorsInterlock", "DOO_Interlock", "DoorInterlock" , "DoorInterlockLight"};
+        private string[] acceptableInverseInterlockIDs = { "DoorsState", "DoorReleaseLeft", "DoorReleaseRight" };
 
         
 
@@ -634,6 +634,11 @@ namespace First_App
         {
             Form2 f2 = new TS_Announce.Form2();
             f2.Show();
+        }
+
+        private void documentationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("Documentation.pdf");
         }
     }
     public class annConfig
