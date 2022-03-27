@@ -9,4 +9,4 @@ Some trains will not have door detection support for the "atStation" functionali
 For support and any questions, please join my discord server at:
 
 
-![Discord Shield](https://discordapp.com/api/guilds/957593187743068160/widget.png?style=shield)(https://discord.gg/9mGHwtkvGB)
+[![Discord Shield](https://discordapp.com/api/guilds/957593187743068160/widget.png?style=shield)](https://discord.gg/9mGHwtkvGB)
