@@ -13,20 +13,26 @@ using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using TS_Announce;
+
+
+
 
 namespace First_App
 {
 
 
-
-    public partial class Form1 : Form
+    public partial class Form1 : System.Windows.Forms.Form
     {
 
-        private static bool tracking;
+        public static bool tracking;
+        public static float currentLAT;
+        public static float currentLON;
 
-        private string[] acceptableInterlockIDs = { "DoorsInterlock", "DOO_Interlock" };
+        private string[] acceptableInterlockIDs = { "DoorsInterlock", "DOO_Interlock", "DoorInterlock" };
         private string[] acceptableInverseInterlockIDs = { "DoorsState" };
 
+        
 
         private bool filesChecked = false;
         private int annPos = 0;
@@ -35,8 +41,6 @@ namespace First_App
         private string dllLoc;
 
         // UPDATING VARS
-        private float currentLAT;
-        private float currentLON;
         private int[] doorIDs;
         private int[] doorInverseIDs;
         private bool[] doorClosed = new bool[0];
@@ -57,7 +61,7 @@ namespace First_App
         public Form1()
         {
             InitializeComponent();
-            this.Text = "TSAnnounce v0.01a";
+            this.Text = "TSAnnounce v0.05a";
             waitHandle.Reset();
             wplayer.settings.volume = (int)(100 * (float)100 / 150);
 
@@ -347,6 +351,7 @@ namespace First_App
             string convertedToJson = JsonConvert.SerializeObject(appSettings, Newtonsoft.Json.Formatting.Indented);
             string[] toSave = { convertedToJson };
             File.WriteAllLines("TSAnnounceSettings.json", toSave);
+            
         }
 
         private void readButton_Click(object sender, EventArgs e)
@@ -584,12 +589,22 @@ namespace First_App
         {
             int realMax = 100;
             int sliderMax = 150;
-            float inputVal = (float)volSlider.Value * (float)configData["volumeModifier"] / 100;
-            Console.WriteLine(inputVal);
-            Console.WriteLine((float)configData["volumeModifier"] / 100);
+            float inputVal = (float)volSlider.Value;
+
+            try
+            {
+                inputVal = (float)volSlider.Value * (float)configData["volumeModifier"] / 100;
+            }
+            catch(Exception)
+            {
+                Console.WriteLine("Config Data not found");
+            }
+
             float volLevel = inputVal * (float)realMax / sliderMax;
+            Console.WriteLine(volLevel);
             wplayer.settings.volume = (int)volLevel;
-            saveSettings();
+
+            saveSettings(); 
         }
 
         private void previousPos_Click(object sender, EventArgs e)
@@ -608,6 +623,17 @@ namespace First_App
         private void pictureBox2_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("https://github.com/YukiSuter/TSAnnounce");
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Application.Exit();
+        }
+
+        private void createEditToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form2 f2 = new TS_Announce.Form2();
+            f2.Show();
         }
     }
     public class annConfig
