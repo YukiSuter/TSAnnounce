@@ -76,6 +76,7 @@ namespace First_App
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.documentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createEditToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectTrainToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.volSlider)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -464,6 +465,7 @@ namespace First_App
             this.menuStrip1.BackColor = System.Drawing.SystemColors.ControlLight;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
+            this.selectTrainToolStripMenuItem,
             this.closeToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -483,16 +485,23 @@ namespace First_App
             // documentationToolStripMenuItem
             // 
             this.documentationToolStripMenuItem.Name = "documentationToolStripMenuItem";
-            this.documentationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.documentationToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.documentationToolStripMenuItem.Text = "Documentation";
             this.documentationToolStripMenuItem.Click += new System.EventHandler(this.documentationToolStripMenuItem_Click);
             // 
             // createEditToolStripMenuItem
             // 
             this.createEditToolStripMenuItem.Name = "createEditToolStripMenuItem";
-            this.createEditToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.createEditToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.createEditToolStripMenuItem.Text = "Create/Edit";
             this.createEditToolStripMenuItem.Click += new System.EventHandler(this.createEditToolStripMenuItem_Click);
+            // 
+            // selectTrainToolStripMenuItem
+            // 
+            this.selectTrainToolStripMenuItem.Name = "selectTrainToolStripMenuItem";
+            this.selectTrainToolStripMenuItem.Size = new System.Drawing.Size(117, 20);
+            this.selectTrainToolStripMenuItem.Text = "Select Train Config";
+            this.selectTrainToolStripMenuItem.Click += new System.EventHandler(this.selectTrainToolStripMenuItem_Click);
             // 
             // closeToolStripMenuItem
             // 
@@ -608,6 +617,7 @@ namespace First_App
         private System.Windows.Forms.ToolStripMenuItem documentationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createEditToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectTrainToolStripMenuItem;
     }
 }
 

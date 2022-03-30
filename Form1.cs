@@ -29,10 +29,10 @@ namespace First_App
         public static float currentLAT;
         public static float currentLON;
 
-        private string[] acceptableInterlockIDs = { "DoorsInterlock", "DOO_Interlock", "DoorInterlock" , "DoorInterlockLight"};
-        private string[] acceptableInverseInterlockIDs = { "DoorsState", "DoorReleaseLeft", "DoorReleaseRight" };
+        private Dictionary<int, bool> doorID;
+        private Dictionary<string, bool> doorIDNames;
+        private bool doorsOpen;
 
-        
 
         private bool filesChecked = false;
         private int annPos = 0;
@@ -41,13 +41,7 @@ namespace First_App
         private string dllLoc;
 
         // UPDATING VARS
-        private int[] doorIDs;
-        private int[] doorInverseIDs;
-        private bool[] doorClosed = new bool[0];
-        private bool[] doorInverseClosed = new bool[0];
-
-
-        bool doorStatus = true;
+       
 
         private WMPLib.WindowsMediaPlayer wplayer = new WMPLib.WindowsMediaPlayer();
 
@@ -153,20 +147,29 @@ namespace First_App
                 // get values
                 [DllImport("RailDriver64.dll")]
                 static extern Single GetCurrentControllerValue(int Control);
-                doorClosed = new bool[0];
-                for (int i = 0; i < doorIDs.Length; i += 1)
+                // DO DOOR STUFF
+                Console.WriteLine("DEBUG LINE");
+
+                foreach (KeyValuePair<int, bool> ID in doorID)
                 {
-                    Array.Resize(ref doorClosed, doorClosed.Length + 1);
-                    doorClosed[i] = Convert.ToBoolean(GetCurrentControllerValue(doorIDs[i]));
+                    float ControlVal = GetCurrentControllerValue(ID.Key);
+
+                    Console.WriteLine(ControlVal);
+
+                    if (ID.Value)
+                    {
+                        doorsOpen = !(Convert.ToBoolean(ControlVal));
+                    }
+                    else
+                    {
+                        doorsOpen = (Convert.ToBoolean(ControlVal));
+                    }    
+
                 }
-                doorInverseClosed = new bool[0];
-                for (int i = 0; i < doorInverseIDs.Length; i += 1)
-                {
-                    Array.Resize(ref doorInverseClosed, doorInverseClosed.Length + 1);
-                    doorInverseClosed[i] = Convert.ToBoolean(GetCurrentControllerValue(doorInverseIDs[i]));
-                }
-                Console.WriteLine("Set door info");
-                
+
+
+                // DO DOOR STUFF
+
                 currentLAT = GetCurrentControllerValue(400);
                 currentLON = GetCurrentControllerValue(401);
                 Action action = () => updateCurrentInfo();
@@ -216,7 +219,7 @@ namespace First_App
                         Invoke(action);
                     }
                 }
-                if (doorStatus)
+                if (false)
                 {
                     Console.WriteLine("At Station!");
                     if (wplayer.playState != WMPLib.WMPPlayState.wmppsPlaying)
@@ -236,45 +239,8 @@ namespace First_App
         {
             latLoc.Text = currentLAT.ToString();
             longLoc.Text = currentLON.ToString();
-            doorStatus = true;
-            for (int i = 0; i < doorClosed.Length; i += 1)
-            {
-                if (doorClosed[i] == true)
-                {
-                    doorStatus = false;
-                }
-            }
-
-            if (doorStatus == false)
-            {
-
-                Console.WriteLine("Non inverse doors closed");
-            }
-
-            for (int i = 0; i < doorInverseClosed.Length; i += 1)
-            {
-                Console.WriteLine(doorInverseClosed[i]);
-                Console.WriteLine("Door status: " + doorInverseClosed[i]);
-                if (doorInverseClosed[i] == false)
-                {
-                    doorStatus = false;
-                }
-            }
-            if (doorStatus == false)
-            {
-
-                Console.WriteLine("Non inverse doors closed");
-            }
-
-            if (doorStatus)
-            {
-                doors.Text = "Open";
-            }
-            else
-            {
-                doors.Text = "Closed";
-            }
-            
+            // UPDATE DOOR LABEL
+            doors.Text = doorsOpen.ToString();
         }
         private void rdBrowseFunction(object sender, EventArgs e)
         {
@@ -491,42 +457,27 @@ namespace First_App
                     String tmp = System.Runtime.InteropServices.Marshal.PtrToStringAnsi(GetControllerList());
                     String[] ControllerList = tmp.Split(new string[] { "::" }, StringSplitOptions.RemoveEmptyEntries);
 
-                    int k;
                     Console.WriteLine("Check Door IDs");
-                    doorIDs = new int[0];
-                    doorInverseIDs = new int[0];
-                    for (k = 0; k < ControllerList.Length; k++)
-                    { 
-                        Console.WriteLine(k+ ": "+ControllerList[k]);
-                        for (int j = 0; j < acceptableInterlockIDs.Length; j++)
-                        {
-                            //Console.WriteLine("Checking: " + ControllerList[k] + " |against| " + acceptableInterlockIDs[j]);
-                            if (ControllerList[k] == acceptableInterlockIDs[j])
-                            {
-                                Console.WriteLine("Found acceptable interlock ID!");
-                                Array.Resize(ref doorIDs, doorIDs.Length + 1);
+                    // CHECK DOOR ID LIST
+                    doorID = new Dictionary<int, bool> { };
 
-                                doorIDs[doorIDs.Length - 1] = k;
-                            }
-                        }
-                        for (int j = 0; j < acceptableInverseInterlockIDs.Length; j++)
+                    foreach (KeyValuePair<string,bool> l in doorIDNames)
+                    {
+                        Console.WriteLine("Check Door IDNames1");
+                        for (int i = 0; i < ControllerList.Length; i++)
                         {
-                            //Console.WriteLine("Checking: " + ControllerList[k] + " |against| " + acceptableInterlockIDs[j]);
+                            if (ControllerList[i] == l.Key)
+                            {
+                                Console.WriteLine("Check Door IDNames2");
+                                Console.WriteLine(l.Value);
+                                Console.WriteLine(i);
+                                doorID.Add(i, l.Value);
+                            }
                             
-                            Console.WriteLine("Check Inverse Door IDs");
-                            if (ControllerList[k] == acceptableInverseInterlockIDs[j])
-                            {
-                                Array.Resize(ref doorInverseIDs, doorInverseIDs.Length + 1);
-                                Console.WriteLine("Found acceptable inverse interlock ID!");
-                                doorInverseIDs[doorInverseIDs.Length - 1] = k;
-                            }
-                        }
-                        Console.WriteLine(doorInverseIDs.Length);
-
+                        }    
+                            
                     }
-
                     tracking = true;
-                    doorClosed = new bool[0];
                     waitHandle.Set();
 
                 }
@@ -640,10 +591,81 @@ namespace First_App
         {
             System.Diagnostics.Process.Start("Documentation.pdf");
         }
+
+        private void selectTrainToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog trainDialog = new OpenFileDialog();
+
+            Console.WriteLine(System.Environment.CurrentDirectory + "\\Trains");
+
+            trainDialog.InitialDirectory = System.Environment.CurrentDirectory + "\\Trains";
+            DialogResult result = trainDialog.ShowDialog(); // Show the dialog.
+            if (result == DialogResult.OK) // Test result.
+            {
+                string file = trainDialog.FileName;
+                try
+                {
+                    string text = File.ReadAllText(file);
+                    try
+                    {
+                        configPath = System.IO.Directory.GetParent(file).FullName;
+                        Console.WriteLine(configPath);
+                        string jsonstring = System.IO.File.ReadAllText(file);
+                        Console.WriteLine(jsonstring);
+                        trainConfig deserialised = JsonConvert.DeserializeObject<trainConfig>(jsonstring);
+                        Console.WriteLine("Checking JSON");
+                        doorIDNames = new Dictionary<string, bool> { };
+                        foreach (KeyValuePair<string, dynamic> i in deserialised.InterlockNames)
+                        {
+                            Console.WriteLine("Checking Interlock Names");
+                            if (i.Key == "Interlock")
+                            {
+                                Console.WriteLine("Found the interlock ID list: " + i.Value.Count);
+                                for (int number = 0; number <= i.Value.Count-1; number++)
+                                {
+                                    string controlID = i.Value[number]; 
+                                    Console.WriteLine(controlID);
+                                    Console.WriteLine("Found an interlock name");
+                                    Console.WriteLine("Adding to acceptable IDs: " + controlID);
+                                    doorIDNames.Add(controlID, false);
+                                    
+                                }
+                                
+                            }
+                            Console.WriteLine("Moving on to inverse IDs");
+                            if (i.Key == "InverseInterlock")
+                            {
+                                Console.WriteLine("Found the inverse interlock ID list: " + i.Value.Count);
+                                for (int number = 0; number <= i.Value.Count - 1; number++)
+                                {
+                                    string controlID = i.Value[number];
+                                    Console.WriteLine(controlID);
+                                    Console.WriteLine("Found an inverse interlock name");
+                                    Console.WriteLine("Adding to acceptable IDs: " + controlID);
+                                    doorIDNames.Add(controlID, true);
+
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+                catch (IOException)
+                {
+                }
+            }
+        }
     }
     public class annConfig
     {
         public Dictionary<string, dynamic> Configuration { get; set; }
         public Dictionary<string, Dictionary<string, dynamic>> Announcements { get; set; }
+    }
+
+    public class trainConfig
+    {
+        public Dictionary<string, dynamic> InterlockNames { get; set; }
     }
 }
