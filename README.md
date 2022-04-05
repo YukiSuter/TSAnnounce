@@ -16,4 +16,4 @@ For support and any questions, please join my discord server at:
 
 ## TRAIN COMPATIBILITY
 
-<iframe src="https://onedrive.live.com/embed?cid=D44718FEEE2DAC48&resid=D44718FEEE2DAC48%21125&authkey=AOfotYaZmt73uP0&em=2" width="402" height="346" frameborder="0" scrolling="no"></iframe>
+[View the spreadsheet here!](https://1drv.ms/x/s!AkisLe7-GEfUfTk7NPiNWQ0xEe0?e=HEbitb)
