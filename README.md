@@ -10,3 +10,10 @@ For support and any questions, please join my discord server at:
 
 
 [![Discord Shield](https://discordapp.com/api/guilds/957593187743068160/widget.png?style=shield)](https://discord.gg/9mGHwtkvGB)
+
+### Feel free to donate at [PayPal](https://www.paypal.com/donate/?hosted_button_id=6JE9UWGP5MVM4) so I can buy more DLC to test compatibility!
+
+
+## TRAIN COMPATIBILITY
+
+[View the spreadsheet here!](https://1drv.ms/x/s!AkisLe7-GEfUfTk7NPiNWQ0xEe0?e=HEbitb)
